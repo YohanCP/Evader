@@ -8,10 +8,10 @@ Anggota Kelompok:
 Dimas Dharma Wicaksono (122140217)
 Yohanes Christian Panjaitan (12142017)
 
-| First Header  | Second Header | First Header  |
-| ------------- | ------------- | ------------- | 
-| Content Cell  | Content Cell  | ------------- | 
-| Content Cell  | Content Cell  | ------------- | 
+| Waktu  | Progress | Keterangan  |
+| Minggu ke-1 | Rancangan kode awal untuk file main.py | Memberikan fungsi membuat facial landmark, meletakkan asset di hidung player, Membuat fugnsi attack saat player berkedip | 
+| Minggu ke-2 | Content Cell  | ------------- | 
+| Minggu ke-3 | Content Cell  | ------------- | 
 
 
 
