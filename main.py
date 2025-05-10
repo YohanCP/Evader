@@ -8,8 +8,8 @@ mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(max_num_faces=1, refine_landmarks=True)
 
 # Load sprite player dan peluru
-player_img = cv2.imread('player 1.png', cv2.IMREAD_UNCHANGED)
-ammo_img = cv2.imread('ammo1.png', cv2.IMREAD_UNCHANGED)
+player_img = cv2.imread('asset/player_dummy.png', cv2.IMREAD_UNCHANGED)
+ammo_img = cv2.imread('asset/ammo_dummy.png', cv2.IMREAD_UNCHANGED)
 
 if player_img is None or ammo_img is None:
     raise FileNotFoundError("Gambar tidak ditemukan.")
