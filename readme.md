@@ -5,8 +5,9 @@ Program interaktif yang melibatkan dua karakter virtual yang saling beradu temba
 
 
 Anggota Kelompok:
-Dimas Dharma Wicaksono (122140217)
-Yohanes Christian Panjaitan (12142017)
+Dimas Dharma Wicaksono (122140217) ID : #167523505<br>
+Yohanes Christian Panjaitan (12142017) ID : #145282836<br>
+Ashoka Tatang Solihin (122140015) ID : #170353573
 
 | Waktu  | Progress | Keterangan  |
 | ------- | ------ | ------ |
