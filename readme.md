@@ -12,6 +12,6 @@ Ashoka Tatang Solihin (122140015) ID : #170353573
 | Waktu  | Progress | Keterangan  |
 | ------- | ------ | ------ |
 | Minggu ke-1 | Rancangan kode awal untuk file main.py,  | Memberikan fungsi membuat facial landmark, meletakkan asset di hidung player, Membuat fungsi attack saat player berkedip | 
-| Minggu ke-2 | Content Cell  |  | 
+| Minggu ke-2 | Penyesuaian kode lebih lanjut  |  Menambahkan bounding box dan memisah kode menjadi beberapa bagian main, utils dan overlay  | 
 | Minggu ke-3 | Content Cell  |  | 
 | Minggu ke-4 | Content Cell  |  | 
