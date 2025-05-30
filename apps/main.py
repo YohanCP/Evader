@@ -47,12 +47,10 @@ shield_active_player1 = False
 shield_active_player2 = False
 
 def activate_shield(player_id):
-    """
-    Activate shield for the specified player.
+    #Activate shield for the specified player.
 
-    Args:
-        player_id (str): "Player 1" or "Player 2".
-    """
+    #Args:
+    #    player_id (str): "Player 1" or "Player 2".
     global shield_active_player1, shield_active_player2
     if player_id == "Player 1":
         shield_active_player1 = True
@@ -74,9 +72,7 @@ def activate_shield(player_id):
     threading.Thread(target=deactivate_shield).start()
 
 def main():
-    """
-    Main function to run the interactive blink-based shooting game with two players.
-    """
+    # Main function to run the interactive blink-based shooting game with two players.
     # Buka kamera
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():

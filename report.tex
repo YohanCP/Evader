@@ -1,0 +1,444 @@
+\documentclass[11pt,a4paper]{article}
+%%%%%%%%%%%%%%%%%%%%%%%%% Credit %%%%%%%%%%%%%%%%%%%%%%%%
+
+% template ini dibuat oleh martin.manullang@if.itera.ac.id untuk dipergunakan oleh seluruh sivitas akademik itera.
+
+%%%%%%%%%%%%%%%%%%%%%%%%% PACKAGE starts HERE %%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{microtype}
+\captionsetup[table]{name=Tabel}
+\captionsetup[figure]{name=Gambar}
+\usepackage{tabulary}
+\usepackage{minted}
+% \usepackage{amsmath}
+\usepackage{fancyhdr}
+% \usepackage{amssymb}
+% \usepackage{amsthm}
+\usepackage{placeins}
+% \usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage[all]{xy}
+\usepackage{tikz}
+\usepackage{verbatim}
+\usepackage[left=2cm,right=2cm,top=3cm,bottom=2.5cm]{geometry}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{psfrag}
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{beramono}
+% Enable inserting code into the document
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+  language=Java,
+  aboveskip=3mm,
+  belowskip=3mm,
+  showstringspaces=false,
+  columns=flexible,
+  basicstyle={\small\ttfamily},
+  numbers=none,
+  numberstyle=\tiny\color{gray},
+  keywordstyle=\color{blue},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},    
+  breaklines=true,
+  breakatwhitespace=true,
+  tabsize=3
+}
+\renewcommand{\lstlistingname}{Kode}
+%%%%%%%%%%%%%%%%%%%%%%%%% PACKAGE ends HERE %%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%% Data Diri %%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\student}{\textbf{Isi Nama Di Sini (Dan Nim Di Sini)}}
+\newcommand{\course}{\textbf{Nama Mata Kuliah (Kode Mata Kuliah)}}
+\newcommand{\assignment}{\textbf{xxx}}
+
+%%%%%%%%%%%%%%%%%%% using theorem style %%%%%%%%%%%%%%%%%%%%
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{defn}[thm]{Definition}
+\newtheorem{exa}[thm]{Example}
+\newtheorem{rem}[thm]{Remark}
+\newtheorem{coro}[thm]{Corollary}
+\newtheorem{quest}{Question}[section]
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{lipsum}%% a garbage package you don't need except to create examples.
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{Nama Mahasiswa di Header (Nim Mahasiswa di Header)}
+\rhead{ \thepage}
+\cfoot{\textbf{Judul Tugas diketik di sini}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+%%%%%%%%%%%%%%  Shortcut for usual set of numbers  %%%%%%%%%%%
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\setlength\headheight{14pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%555
+\begin{document}
+\thispagestyle{empty}
+\begin{center}
+	\includegraphics[scale = 0.15]{Figure/ifitera-header.png}
+	\vspace{0.1cm}
+\end{center}
+\noindent
+\rule{17cm}{0.2cm}\\[0.3cm]
+Nama: \student \hfill Tugas Ke: \assignment\\[0.1cm]
+Mata Kuliah: \course \hfill Tanggal: Tanggalnya\\
+\rule{17cm}{0.05cm}
+\vspace{0.1cm}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BODY DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Deskripsi Projek}
+Proyek ini adalah sebuah permainan tembak-menembak interaktif untuk dua pemain yang dikendalikan dengan kedipan mata dan gestur tangan menggunakan webcam. Pemain dapat menembakkan "peluru" dengan berkedip dan mengaktifkan "perisai" dengan gestur jempol.
+
+\section{Teknologi}
+Dalam projek ini digunakan beberapa library dari python yang esensial dalam menjalankan program. Berikut merupakan library yang digunakan :
+\begin{itemize}
+    \item cv2 (OpenCV): Digunakan untuk mengambil video dari webcam, memproses frame video (misalnya membalik atau mengubah ukuran), dan menampilkan antarmuka permainan.
+    \item mediapipe: Kerangka kerja lintas platform untuk membangun alur kerja pembelajaran mesin, digunakan di sini untuk deteksi dan pelacakan landmark wajah (untuk mata dan hidung) dan tangan.
+    \item numpy: Library untuk komputasi numerik, khususnya untuk operasi array, digunakan dalam perhitungan rasio aspek mata dan penanganan mask gambar.
+    \item threading: Library untuk menjalankan operasi secara bersamaan dalam program (misalnya, menonaktifkan perisai setelah beberapa detik).
+    \item time: Library untuk fungsi terkait waktu, seperti mengukur cooldown kedipan dan durasi perisai.
+    \item overlay (modul kustom): Modul ini berisi fungsi untuk menempatkan gambar (seperti sprite pemain, peluru, dan perisai) di atas frame video secara transparan.
+    \item utils (modul kustom): Modul ini berisi fungsi-fungsi pembantu seperti perhitungan rasio aspek mata, deteksi gestur tangan, dan penggambaran healthbar.
+\end{itemize}
+
+\section{Cara Kerja}
+Cara kerja pada projek Final Project ini adalah sebagai berikut:
+\begin{itemize}
+    \item Sistem menggunakan kamera webcam untuk menangkap video secara langsung.
+    \item Sistem menggunakan library MediaPipe Face Mesh untuk mendeteksi landmark wajah, khususnya di sekitar mata, untuk menghitung Eye Aspect Ratio (EAR).
+    \item Berdasarkan EAR, sistem mendeteksi kedipan mata pengguna. Jika mata terdeteksi berkedip dan memenuhi kondisi cooldown, proyektil ditembakkan dari posisi wajah pemain.
+    \item Sistem juga menggunakan library MediaPipe Hands untuk mendeteksi tangan dan melacak posisi landmark jari.
+    \item Berdasarkan posisi landmark tangan, sistem mendeteksi gestur tangan tertentu (misalnya, thumbs up).
+    \item Jika gestur thumbs up terdeteksi, shield untuk pemain yang bersangkutan akan diaktifkan untuk durasi tertentu, memberikan perlindungan dari proyektil lawan.
+    \item Posisi hidung dari deteksi face mesh digunakan untuk menentukan posisi horizontal dan vertikal karakter pemain di layar.
+    \item Proyektil bergerak melintasi layar, dan sistem akan mendeteksi tabrakan antara proyektil dan pemain lawan. Jika terjadi tabrakan dan shield tidak aktif, health pemain akan berkurang.
+    \item Healthbar pemain ditampilkan di layar untuk menunjukkan kondisi health mereka secara real-time.
+\end{itemize}
+
+\section{Penjelasan Kode Program}
+Kode program terbagi menjadi tiga file: \textbf{main.py}, \textbf{overlay.py}, dan \textbf{utils.py}. Berikut adalah penjelasan dari masing-masing bagian kode:
+\subsection{main.py}
+\textbf{main.py} berisi kode yang menjadi fondasi utama program, pada kode ini program dijalankan kemudian akan memanggil fungsi yang dibutuhkan dari file pythona lainnya
+
+\begin{lstlisting}[language=Python, caption=Main.py]
+import cv2
+import mediapipe as mp
+import numpy as np
+import threading
+import time
+from overlay import overlay_transparent
+from utils import eye_aspect_ratio, detect_hand_gesture, draw_healthbar
+
+# Inisialisasi Face Mesh dan Hand Detection
+mp_face_mesh = mp.solutions.face_mesh
+face_mesh = mp_face_mesh.FaceMesh(max_num_faces=2, refine_landmarks=True)
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(max_num_hands=2)
+
+# Load sprite player, peluru, dan shield
+player_img = cv2.imread('assets/player_dummy.png', cv2.IMREAD_UNCHANGED)
+ammo_img = cv2.imread('assets/ammo_dummy.png', cv2.IMREAD_UNCHANGED)
+shield_img = cv2.imread('assets/player_dummy.png', cv2.IMREAD_UNCHANGED)
+
+if player_img is None or ammo_img is None or shield_img is None:
+    raise FileNotFoundError("Gambar tidak ditemukan.")
+if player_img.shape[2] < 4 or ammo_img.shape[2] < 4 or shield_img.shape[2] < 4:
+    raise ValueError("Gambar tidak memiliki alpha channel.")
+
+# Indeks landmark mata
+LEFT_EYE_IDX = [362, 385, 387, 263, 373, 380]
+RIGHT_EYE_IDX = [33, 160, 158, 133, 153, 144]
+
+# Landmark hidung untuk posisi player
+NOSE_IDX = 1
+
+# Threshold dan cooldown
+BLINK_THRESHOLD = 0.15
+OPEN_THRESHOLD = 0.25
+BLINK_COOLDOWN = 1.0
+
+# Ukuran player
+PLAYER_W = 100
+PLAYER_H = int(PLAYER_W * player_img.shape[0] / player_img.shape[1])
+
+# Healthbar awal
+health_player1 = 100
+health_player2 = 100
+
+# Status shield
+shield_active_player1 = False
+shield_active_player2 = False
+
+def activate_shield(player_id):
+    #Activate shield for the specified player.
+
+    #Args:
+    #    player_id (str): "Player 1" or "Player 2".
+    global shield_active_player1, shield_active_player2
+    if player_id == "Player 1":
+        shield_active_player1 = True
+        print("Player 1 activated SHIELD!")
+    elif player_id == "Player 2":
+        shield_active_player2 = True
+        print("Player 2 activated SHIELD!")
+
+    # Matikan shield setelah beberapa detik
+    def deactivate_shield():
+        nonlocal player_id
+        time.sleep(5)  # Shield aktif selama 5 detik
+        if player_id == "Player 1":
+            shield_active_player1 = False
+        elif player_id == "Player 2":
+            shield_active_player2 = False
+        print(f"{player_id} shield deactivated.")
+
+    threading.Thread(target=deactivate_shield).start()
+
+def main():
+    # Main function to run the interactive blink-based shooting game with two players.
+    # Buka kamera
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        raise IOError("Tidak dapat membuka kamera.")
+
+    # Inisialisasi variabel
+    last_blink_time = [0, 0]
+    eye_ready_to_blink = [0, 0]
+    projectiles = []
+    health_player1 = 100
+    health_player2 = 100
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        frame = cv2.flip(frame, 1)
+        ih, iw = frame.shape[:2]
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results_face = face_mesh.process(rgb_frame)
+        results_hands = hands.process(rgb_frame)
+        current_time = time.time()
+
+        # Reset proyektil yang keluar dari layar
+        new_projectiles = []
+        for proj in projectiles:
+            proj['x'] += 10 if proj['player'] == "Player 1" else -10
+            if 0 <= proj['x'] <= iw:
+                new_projectiles.append(proj)
+        projectiles = new_projectiles
+
+        if results_face.multi_face_landmarks:
+            for idx, face_landmarks in enumerate(results_face.multi_face_landmarks[:2]):
+                # Deteksi kedipan mata
+                left_ear = eye_aspect_ratio(face_landmarks.landmark, LEFT_EYE_IDX, iw, ih)
+                right_ear = eye_aspect_ratio(face_landmarks.landmark, RIGHT_EYE_IDX, iw, ih)
+                avg_ear = (left_ear + right_ear) / 2.0
+
+                nose = face_landmarks.landmark[NOSE_IDX]
+                player_x = int(nose.x * iw) - PLAYER_W // 2
+                player_y = int(nose.y * ih) - PLAYER_H // 2
+
+                blinking = avg_ear < BLINK_THRESHOLD
+                eyes_open = avg_ear > OPEN_THRESHOLD
+
+                if eyes_open:
+                    eye_ready_to_blink[idx] = 1
+
+                if blinking and eye_ready_to_blink[idx] == 1 and current_time - last_blink_time[idx] >= BLINK_COOLDOWN:
+                    # Tembakkan peluru
+                    ammo_w = 30
+                    ammo_h = int(ammo_w * ammo_img.shape[0] / ammo_img.shape[1])
+                    ammo_start_x = player_x + PLAYER_W if idx == 0 else player_x - ammo_w
+                    ammo_start_y = player_y + PLAYER_H // 2 - ammo_h // 2
+                    projectiles.append({
+                        'x': ammo_start_x,
+                        'y': ammo_start_y,
+                        'w': ammo_w,
+                        'h': ammo_h,
+                        'player': f"Player {idx + 1}"
+                    })
+                    last_blink_time[idx] = current_time
+                    eye_ready_to_blink[idx] = 0
+
+                # Gambar player
+                frame = overlay_transparent(frame, player_img, player_x, player_y, (PLAYER_W, PLAYER_H))
+
+                # Gambar healthbar
+                health = health_player1 if idx == 0 else health_player2
+                frame = draw_healthbar(frame, f"Player {idx + 1}", health, player_x, player_y - 20)
+
+        # Deteksi gestur tangan
+        if results_hands.multi_hand_landmarks:
+            for hand_landmarks in results_hands.multi_hand_landmarks:
+                gesture = detect_hand_gesture(hand_landmarks)
+                if gesture == "thumbs_up":
+                    # Aktifkan shield untuk pemain yang melakukan gestur
+                    if hand_landmarks.landmark[0].x < 0.5:  # Pemain di kiri frame
+                        activate_shield("Player 1")
+                    else:  # Pemain di kanan frame
+                        activate_shield("Player 2")
+
+        # Gambar proyektil dan deteksi tabrakan
+        for proj in projectiles:
+            frame = overlay_transparent(frame, ammo_img, proj['x'], proj['y'], (proj['w'], proj['h']))
+
+            # Deteksi tabrakan dengan player
+            for idx, face_landmarks in enumerate(results_face.multi_face_landmarks[:2]):
+                nose = face_landmarks.landmark[NOSE_IDX]
+                player_x = int(nose.x * iw) - PLAYER_W // 2
+                player_y = int(nose.y * ih) - PLAYER_H // 2
+
+                if (player_x < proj['x'] < player_x + PLAYER_W and
+                    player_y < proj['y'] < player_y + PLAYER_H and
+                    proj['player'] != f"Player {idx + 1}" and
+                    not (shield_active_player1 if idx == 0 else shield_active_player2)):
+                    if idx == 0:
+                        health_player1 -= 10
+                    else:
+                        health_player2 -= 10
+                    projectiles.remove(proj)
+
+        # Gambar shield jika aktif
+        for idx, face_landmarks in enumerate(results_face.multi_face_landmarks[:2]):
+            nose = face_landmarks.landmark[NOSE_IDX]
+            player_x = int(nose.x * iw) - PLAYER_W // 2
+            player_y = int(nose.y * ih) - PLAYER_H // 2
+
+            if idx == 0 and shield_active_player1:
+                frame = overlay_transparent(frame, shield_img, player_x, player_y, (PLAYER_W, PLAYER_H))
+            elif idx == 1 and shield_active_player2:
+                frame = overlay_transparent(frame, shield_img, player_x, player_y, (PLAYER_W, PLAYER_H))
+
+        # Tampilkan frame
+        cv2.imshow("Two Player Blink Shot", frame)
+        if cv2.waitKey(5) & 0xFF == 27:  # Tekan ESC untuk keluar
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
+\end{lstlisting}
+
+\subsection{overlay.py}
+\textbf{overlay.py} berisi kode untuk ...
+\begin{lstlisting}[language=Python, caption=Main.py]
+import cv2
+import numpy as np
+
+def overlay_transparent(bg, overlay, x, y, overlay_size=None):
+    bg = bg.copy()
+    if overlay_size:
+        overlay = cv2.resize(overlay, overlay_size, interpolation=cv2.INTER_AREA)
+    h, w = overlay.shape[:2]
+    if x + w > bg.shape[1] or y + h > bg.shape[0] or x < 0 or y < 0:
+        return bg
+    overlay_img = overlay[:, :, :3]
+    mask = overlay[:, :, 3] / 255.0
+    mask = np.stack([mask] * 3, axis=-1)
+    roi = bg[y:y+h, x:x+w]
+    blended = (1.0 - mask) * roi + mask * overlay_img
+    bg[y:y+h, x:x+w] = blended.astype(np.uint8)
+    return bg
+\end{lstlisting}
+
+\subsection{utils.py}
+\textbf{utils.py}, seperti namanya berisi utilitas yang dibutuhkan program seperti aspek rasio mata, mendeteksi gesture tangan dan menggambar healthbar untuk player
+\begin{lstlisting}
+[language=Python, caption=Main.py]
+import numpy as np
+import cv2
+
+def eye_aspect_ratio(landmarks, eye_indices, img_w, img_h):
+    p = [landmarks[i] for i in eye_indices]
+    p = [(int(pt.x * img_w), int(pt.y * img_h)) for pt in p]
+    A = np.linalg.norm(np.array(p[1]) - np.array(p[5]))
+    B = np.linalg.norm(np.array(p[2]) - np.array(p[4]))
+    C = np.linalg.norm(np.array(p[0]) - np.array(p[3]))
+    ear = (A + B) / (2.0 * C)
+    return ear
+
+def detect_hand_gesture(hand_landmarks):
+    thumb_tip = hand_landmarks.landmark[4]
+    index_tip = hand_landmarks.landmark[8]
+    middle_tip = hand_landmarks.landmark[12]
+
+    # Contoh: Deteksi thumbs up
+    if thumb_tip.y < index_tip.y and thumb_tip.y < middle_tip.y:
+        return "thumbs_up"
+
+    return None
+
+def draw_healthbar(frame, player_id, health, x, y, w=100, h=10):
+    # Draw background of the healthbar
+    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 0), 2)
+    # Draw filled part of the healthbar
+    fill_width = int((health / 100) * w)
+    cv2.rectangle(frame, (x, y), (x + fill_width, y + h), (0, 255, 0), -1)
+    # Add player label
+    cv2.putText(frame, player_id, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    return frame
+\end{lstlisting}
+
+
+
+
+
+\section{Memuat Tabel}
+Bagian ini adalah bagian yang menurut saya cukup sulit. Namun anda dapat menggunakan bantuan dari table designer yang ada di internet, misalnya \href{https://www.tablesgenerator.com}{TablesGenerator} atau \href{https://www.latex-tables.com}{Latex-Tables}. Ada juga plugin untuk microsoft excel bernama \href{https://ctan.org/tex-archive/support/excel2latex?lang=en}{CTAN}, namun saya jarang mempergunakannya. Contoh tabel dapat dilihat pada Tabel \ref{tab-contoh} berikut.
+
+\begin{table}[h]
+\caption{Contoh Tabel}
+\label{tab-contoh}
+\centering
+\resizebox{12cm}{!}{%
+\begin{tabular}{ccccccccc}
+\hline
+\multirow{2}{*}{\textbf{Exp}} & \multirow{2}{*}{\textbf{Mask}} & \multicolumn{3}{c}{\textbf{GT}}            & \multicolumn{3}{c}{\textbf{Proposed}}      & \multirow{2}{*}{\textbf{RMSE}} \\ \cline{3-8}
+                              &                                & \textbf{Avg} & \textbf{Max} & \textbf{Min} & \textbf{Avg} & \textbf{Max} & \textbf{Min} &                                \\ \hline
+\multirow{2}{*}{1}            & Yes                            & 89.60        & 114.84        & 70.31        & 89.14        & 118.45        & 68.24        & 3.66                           \\
+                              & No                             & 90.55        & 112.50        & 75.00        & 89.03        & 109.75        & 71.35        & 3.60                            \\ \hline
+\multirow{2}{*}{2}            & Yes                            & 109.84        & 125.98       & 98.44       & 108.62       & 121.30       & 98.26      & 4.04                           \\ 
+                              & No                             & 106.62       & 123.44        & 96.09       & 106.48       & 122.19       & 93.37        & 3.95                           \\ \hline
+3                             & Yes                            & 74.42        & 94.92       & 62.99        & 73.49       & 102.32        & 60.43       & 3.27                         \\ \hline
+Mean                          &                                & 90.61         & 114.34        & 80.57        & 89.70       & 114.80       & 78.33        & 3.63                           \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\section{Referensi dan Daftar Pustaka}
+Ini bagian yang sedikit \textit{tricky}. Anda harus memasukkan daftar pustaka anda ke sebuah file berekstensi .bib di bagian kiri dari overleaf ini. Konten dot bib ini dapat anda export dengan mudah, entah itu dari google scholar, mendeley, ataupun manajemen sitasi lainnya.\\\\
+Cara penggunaanya pun cukup mudah. Misalnya saat ini saya ingin mensitasi salah satu dokumen yang ada, misalnya wikipedia, saya cukup menuliskan $\backslash${\tt{cite}} yang berisikan cite-key dari entri yang ada di file.bib \cite{Wikipedia_contributors2021-bb}. Contoh lain menuliskan sitasi adalah sebagai berikut \cite{Name2018-hd}.
+
+\newpage
+\bibliographystyle{IEEEtran}
+\bibliography{Referensi}
+\end{document}
