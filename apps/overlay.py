@@ -2,19 +2,6 @@ import cv2
 import numpy as np
 
 def overlay_transparent(bg, overlay, x, y, overlay_size=None):
-    """
-    Overlay a transparent image on top of a background image.
-
-    Args:
-        bg (numpy.ndarray): Background image.
-        overlay (numpy.ndarray): Overlay image with alpha channel.
-        x (int): X-coordinate of the overlay position.
-        y (int): Y-coordinate of the overlay position.
-        overlay_size (tuple): Optional size to resize the overlay.
-
-    Returns:
-        numpy.ndarray: Combined image with overlay applied.
-    """
     if overlay_size:
         overlay = cv2.resize(overlay, overlay_size, interpolation=cv2.INTER_AREA)
     h, w = overlay.shape[:2]

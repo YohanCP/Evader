@@ -2,18 +2,6 @@ import numpy as np
 import cv2
 
 def eye_aspect_ratio(landmarks, eye_indices, img_w, img_h):
-    """
-    Calculate the Eye Aspect Ratio (EAR) based on landmarks.
-
-    Args:
-        landmarks (list): List of facial landmarks.
-        eye_indices (list): Indices of eye landmarks.
-        img_w (int): Image width.
-        img_h (int): Image height.
-
-    Returns:
-        float: Calculated EAR value.
-    """
     p = np.array([(landmarks[i].x * img_w, landmarks[i].y * img_h) for i in eye_indices])
     A = np.linalg.norm(p[1] - p[5])
     B = np.linalg.norm(p[2] - p[4])
@@ -22,16 +10,6 @@ def eye_aspect_ratio(landmarks, eye_indices, img_w, img_h):
     return ear
 
 def detect_hand_gesture(hand_landmarks, thumb_threshold=0.1):
-    """
-    Detect hand gestures based on landmarks.
-
-    Args:
-        hand_landmarks (list): List of hand landmarks.
-        thumb_threshold (float): Threshold for detecting "thumbs up".
-
-    Returns:
-        str: Gesture name (e.g., "thumbs_up").
-    """
     thumb_tip = hand_landmarks.landmark[4]
     index_tip = hand_landmarks.landmark[8]
     middle_tip = hand_landmarks.landmark[12]
@@ -42,23 +20,6 @@ def detect_hand_gesture(hand_landmarks, thumb_threshold=0.1):
     return None
 
 def draw_healthbar(frame, player_id, health, x, y, w=100, h=10, bg_color=(0, 0, 0), fg_color=(0, 255, 0)):
-    """
-    Draw a healthbar above the player's head.
-
-    Args:
-        frame (numpy.ndarray): Frame to draw on.
-        player_id (str): Player ID ("Player 1" or "Player 2").
-        health (int): Current health value (0-100).
-        x (int): X-coordinate of the healthbar.
-        y (int): Y-coordinate of the healthbar.
-        w (int): Width of the healthbar.
-        h (int): Height of the healthbar.
-        bg_color (tuple): Background color of the healthbar.
-        fg_color (tuple): Foreground color of the healthbar.
-
-    Returns:
-        numpy.ndarray: Frame with healthbar drawn.
-    """
     # Draw background of the healthbar
     cv2.rectangle(frame, (x, y), (x + w, y + h), bg_color, 2)
 
