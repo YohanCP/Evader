@@ -64,9 +64,9 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%% Data Diri %%%%%%%%%%%%%%%%%%%%%%%%
-\newcommand{\student}{\textbf{Isi Nama Di Sini (Dan Nim Di Sini)}}
-\newcommand{\course}{\textbf{Nama Mata Kuliah (Kode Mata Kuliah)}}
-\newcommand{\assignment}{\textbf{xxx}}
+\newcommand{\student}{\textbf{Ashoka Tatang (122140051), Dimas Dharma (122140215), Yohanes Christian (122140217)}}
+\newcommand{\course}{\textbf{Sistem/Teknologi Multimedia (IF4021)}}
+\newcommand{\assignment}{\textbf{Final Project}}
 
 %%%%%%%%%%%%%%%%%%% using theorem style %%%%%%%%%%%%%%%%%%%%
 \newtheorem{thm}{Theorem}
@@ -80,9 +80,9 @@
 \usepackage{lipsum}%% a garbage package you don't need except to create examples.
 \usepackage{fancyhdr}
 \pagestyle{fancy}
-\lhead{Nama Mahasiswa di Header (Nim Mahasiswa di Header)}
+\lhead{Dimas(12240215), Ashoka(122140051), Yohanes(122140217)}
 \rhead{ \thepage}
-\cfoot{\textbf{Judul Tugas diketik di sini}}
+\cfoot{\textbf{Final Project Multimedia}}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
 
@@ -104,8 +104,8 @@
 \end{center}
 \noindent
 \rule{17cm}{0.2cm}\\[0.3cm]
-Nama: \student \hfill Tugas Ke: \assignment\\[0.1cm]
-Mata Kuliah: \course \hfill Tanggal: Tanggalnya\\
+Nama: \student \hfill \\ Tugas Ke: \assignment \\[0.1cm]
+Mata Kuliah: \course \hfill Tanggal: 31 Mei 2025 \\
 \rule{17cm}{0.05cm}
 \vspace{0.1cm}
 
@@ -121,7 +121,6 @@ Dalam projek ini digunakan beberapa library dari python yang esensial dalam menj
     \item cv2 (OpenCV): Digunakan untuk mengambil video dari webcam, memproses frame video (misalnya membalik atau mengubah ukuran), dan menampilkan antarmuka permainan.
     \item mediapipe: Kerangka kerja lintas platform untuk membangun alur kerja pembelajaran mesin, digunakan di sini untuk deteksi dan pelacakan landmark wajah (untuk mata dan hidung) dan tangan.
     \item numpy: Library untuk komputasi numerik, khususnya untuk operasi array, digunakan dalam perhitungan rasio aspek mata dan penanganan mask gambar.
-    \item threading: Library untuk menjalankan operasi secara bersamaan dalam program (misalnya, menonaktifkan perisai setelah beberapa detik).
     \item time: Library untuk fungsi terkait waktu, seperti mengukur cooldown kedipan dan durasi perisai.
     \item overlay (modul kustom): Modul ini berisi fungsi untuk menempatkan gambar (seperti sprite pemain, peluru, dan perisai) di atas frame video secara transparan.
     \item utils (modul kustom): Modul ini berisi fungsi-fungsi pembantu seperti perhitungan rasio aspek mata, deteksi gestur tangan, dan penggambaran healthbar.
@@ -131,6 +130,7 @@ Dalam projek ini digunakan beberapa library dari python yang esensial dalam menj
 Cara kerja pada projek Final Project ini adalah sebagai berikut:
 \begin{itemize}
     \item Sistem menggunakan kamera webcam untuk menangkap video secara langsung.
+    \item Kamera membagi menjadi 2 section untuk player 1 dan player 2 dan memberi batas agar user tidak melewati boundary line
     \item Sistem menggunakan library MediaPipe Face Mesh untuk mendeteksi landmark wajah, khususnya di sekitar mata, untuk menghitung Eye Aspect Ratio (EAR).
     \item Berdasarkan EAR, sistem mendeteksi kedipan mata pengguna. Jika mata terdeteksi berkedip dan memenuhi kondisi cooldown, proyektil ditembakkan dari posisi wajah pemain.
     \item Sistem juga menggunakan library MediaPipe Hands untuk mendeteksi tangan dan melacak posisi landmark jari.
@@ -142,97 +142,176 @@ Cara kerja pada projek Final Project ini adalah sebagai berikut:
 \end{itemize}
 
 \section{Penjelasan Kode Program}
-Kode program terbagi menjadi tiga file: \textbf{main.py}, \textbf{overlay.py}, dan \textbf{utils.py}. Berikut adalah penjelasan dari masing-masing bagian kode:
+Kode program terbagi menjadi tiga file: \textbf{main.py}, \textbf{overlay.py}, \textbf{menu-manager.py}, dan \textbf{utils.py}. Berikut adalah penjelasan dari masing-masing bagian kode:
 \subsection{main.py}
-\textbf{main.py} berisi kode yang menjadi fondasi utama program, pada kode ini program dijalankan kemudian akan memanggil fungsi yang dibutuhkan dari file pythona lainnya
+\textbf{main.py} berisi kode yang menjadi fondasi utama program, pada kode ini program dijalankan kemudian akan memanggil fungsi yang dibutuhkan dari file pythona lainnya.
 
-\begin{lstlisting}[language=Python, caption=Main.py]
+\begin{lstlisting}[language=Python, caption=library pada Main.py]
 import cv2
 import mediapipe as mp
 import numpy as np
 import threading
 import time
 from overlay import overlay_transparent
-from utils import eye_aspect_ratio, detect_hand_gesture, draw_healthbar
+from utils import (
+    eye_aspect_ratio,
+    detect_hand_gesture,
+    draw_healthbar,
+)
+import menu_manager
+\end{lstlisting}
 
-# Inisialisasi Face Mesh dan Hand Detection
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(max_num_faces=2, refine_landmarks=True)
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(max_num_hands=2)
+\subsubsection{Penjelasan Library}
 
-# Load sprite player, peluru, dan shield
-player_img = cv2.imread('assets/player_dummy.png', cv2.IMREAD_UNCHANGED)
-ammo_img = cv2.imread('assets/ammo_dummy.png', cv2.IMREAD_UNCHANGED)
-shield_img = cv2.imread('assets/player_dummy.png', cv2.IMREAD_UNCHANGED)
+\begin{itemize}
+    \item \textbf{cv2 (OpenCV-python)}  :  Digunakan untuk menangkap video dari \textit{webcam}. OpenCV adalah library python yang umum digunakan dalam pemrrosesan gambar dan video secara realtime.
+    \item \textbf{mediapipe}    : Dalam program \textbf{Evader} digunakan untuk facial landmark sebagai peletakan pesawat dan hand tracking untuk mendeteksi gestur tangan player.
+    \item \textbf{numpy}    : Digunakan untuk indexing landmark, dan perhitungan scale UI, Screen, Collision Box dan lain-lain.
+    \item \textbf{threading}    : Modul ini memungkinkan program untuk menjalankan beberapa bagian kode secara bersamaan dalam thread yang berbeda.
+    \item \textbf{time} : Modul ini menyediakan berbagai fungsi terkait waktu. Dalam game ini, time digunakan untuk Mmengelola cooldown tembakan dan perisai, memastikan ada jeda waktu sebelum aksi yang sama bisa diulang dan juga mengukur durasi tampilan instruksi di awal game.
+    \item \textbf{overlay}  : 
+    \item \textbf{utils}    : 
+    \item \textbf{menu manager} : 
+\end{itemize}
+\subsubsection{Fungsi rotate\textunderscore image\textunderscore alpha}
+Fungsi ini bertanggung jawab untuk memutar gambar sambil mempertahankan saluran alfa (transparansi). Ini sangat penting untuk gambar seperti pesawat ruang angkasa atau peluru yang memiliki area transparan dan perlu diputar tanpa kehilangan informasi transparansinya, sehingga dapat di-overlay dengan benar di atas latar belakang video.
+\begin{lstlisting}[language=Python, caption=rotate\textunderscore image\textunderscore alpha]
+def rotate_image_alpha(image, angle):
+    h, w = image.shape[:2]
+    center = (w // 2, h // 2)
+    rotation_matrix = cv2.getRotationMatrix2D(center, angle, 1.0)
+    cos = np.abs(rotation_matrix[0, 0])
+    sin = np.abs(rotation_matrix[0, 1])
+    new_w = int((h * sin) + (w * cos))
+    new_h = int((h * cos) + (w * sin))
+    rotation_matrix[0, 2] += (new_w / 2) - center[0]
+    rotation_matrix[1, 2] += (new_h / 2) - center[1]
+    rotated = cv2.warpAffine(image, rotation_matrix, (new_w, new_h), borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0, 0))
+    return rotated
+\end{lstlisting}
 
-if player_img is None or ammo_img is None or shield_img is None:
-    raise FileNotFoundError("Gambar tidak ditemukan.")
-if player_img.shape[2] < 4 or ammo_img.shape[2] < 4 or shield_img.shape[2] < 4:
-    raise ValueError("Gambar tidak memiliki alpha channel.")
+\subsubsection{Fungsi handle\textunderscore mouse\textunderscore event}
+Ini adalah fungsi callback untuk menangani event mouse di jendela OpenCV. Peran utamanya adalah mendeteksi kapan tombol mouse kiri diklik (cv2.EVENT\textunderscore\textunderscore LBUTTONDOWN) dan memeriksa apakah klik tersebut terjadi di atas area tombol "REPLAY" atau "CLOSE" yang ditampilkan di layar. Jika ya, ia akan mengatur flag global (\textunderscore restart\textunderscore game\textunderscore flag atau \textunderscore exit\textunderscore game\textunderscore flag) yang kemudian akan diproses di main loop untuk mengubah status game atau keluar dari game.
+\begin{lstlisting}[language=Python, caption=handle\textunderscore mouse\textunderscore event]
+def handle_mouse_event(event, x, y, flags, param):
+    global _restart_game_flag, _exit_game_flag, replay_button_rect, close_button_rect
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # Check if replay button was clicked
+        if replay_button_rect and \
+           x >= replay_button_rect[0] and x <= replay_button_rect[0] + replay_button_rect[2] and \
+           y >= replay_button_rect[1] and y <= replay_button_rect[1] + replay_button_rect[3]:
+            _restart_game_flag = True
+        # Check if close button was clicked
+        if close_button_rect and \
+           x >= close_button_rect[0] and x <= close_button_rect[0] + close_button_rect[2] and \
+           y >= close_button_rect[1] and y <= close_button_rect[1] + close_button_rect[3]:
+            _exit_game_flag = True
+\end{lstlisting}
 
-# Indeks landmark mata
-LEFT_EYE_IDX = [362, 385, 387, 263, 373, 380]
-RIGHT_EYE_IDX = [33, 160, 158, 133, 153, 144]
+\subsubsection{Fungsi activate\textunderscore shield}
 
-# Landmark hidung untuk posisi player
-NOSE_IDX = 1
-
-# Threshold dan cooldown
-BLINK_THRESHOLD = 0.15
-OPEN_THRESHOLD = 0.25
-BLINK_COOLDOWN = 1.0
-
-# Ukuran player
-PLAYER_W = 100
-PLAYER_H = int(PLAYER_W * player_img.shape[0] / player_img.shape[1])
-
-# Healthbar awal
-health_player1 = 100
-health_player2 = 100
-
-# Status shield
-shield_active_player1 = False
-shield_active_player2 = False
-
+Fungsi ini digunakan untuk mengaktifkan perisai (shield) untuk pemain tertentu. Ini memeriksa apakah perisai sudah aktif dan apakah cooldown perisai telah berlalu. Jika kondisi terpenuhi, ia akan mengatur flag shield\textunderscore active\textunderscore player1 atau shield\textunderscore active\textunderscore player2 menjadi True dan memulai thread baru untuk memanggil fungsi deactivate\textunderscore shield setelah durasi tertentu.
+\begin{lstlisting}[language=Python, caption=activate\textunderscore shield]
 def activate_shield(player_id):
-    #Activate shield for the specified player.
-
-    #Args:
-    #    player_id (str): "Player 1" or "Player 2".
-    global shield_active_player1, shield_active_player2
+    global shield_active_player1, shield_active_player2, \
+           last_shield_deactivation_time_p1, last_shield_deactivation_time_p2
+    current_time = time.time()
     if player_id == "Player 1":
-        shield_active_player1 = True
-        print("Player 1 activated SHIELD!")
+        if not shield_active_player1 and \
+           (current_time - last_shield_deactivation_time_p1 >= 5.0):
+            shield_active_player1 = True
+            threading.Thread(target=deactivate_shield, args=("Player 1",)).start()
     elif player_id == "Player 2":
-        shield_active_player2 = True
-        print("Player 2 activated SHIELD!")
+        if not shield_active_player2 and \
+           (current_time - last_shield_deactivation_time_p2 >= 5.0):
+            shield_active_player2 = True
+            threading.Thread(target=deactivate_shield, args=("Player 2",)).start()
+\end{lstlisting}
 
-    # Matikan shield setelah beberapa detik
-    def deactivate_shield():
-        nonlocal player_id
-        time.sleep(5)  # Shield aktif selama 5 detik
-        if player_id == "Player 1":
-            shield_active_player1 = False
-        elif player_id == "Player 2":
-            shield_active_player2 = False
-        print(f"{player_id} shield deactivated.")
+\subsubsection{Fungsi deactivate\textunderscore shield}
+Fungsi ini adalah penonaktif perisai. Setelah jangka waktu yang ditentukan (3 detik), ia akan mengatur flag perisai pemain yang sesuai menjadi False dan mencatat waktu penonaktifan perisai terakhir. Ini penting untuk mengimplementasikan cooldown perisai.
 
-    threading.Thread(target=deactivate_shield).start()
+\begin{lstlisting}[language=Python, caption=deactivate\textunderscore shield]
+def activate_shield(player_id):
+    global shield_active_player1, shield_active_player2, \
+           last_shield_deactivation_time_p1, last_shield_deactivation_time_p2
+    current_time = time.time()
+    if player_id == "Player 1":
+        if not shield_active_player1 and \
+           (current_time - last_shield_deactivation_time_p1 >= 5.0):
+            shield_active_player1 = True
+            threading.Thread(target=deactivate_shield, args=("Player 1",)).start()
+    elif player_id == "Player 2":
+        if not shield_active_player2 and \
+           (current_time - last_shield_deactivation_time_p2 >= 5.0):
+            shield_active_player2 = True
+            threading.Thread(target=deactivate_shield, args=("Player 2",)).start()
+\end{lstlisting}
 
+\subsubsection{Fungsi main}
+Ini adalah fungsi inti dari seluruh aplikasi game. Ini mengelola alur permainan secara keseluruhan. Berikut adalah peran-peran kuncinya:
+\begin{itemize}
+    \item Inisialisasi Kamera dan Jendela: Memulai pengambilan video dari kamera dan membuat jendela display.
+    \item Pengaturan Game Awal: Mengatur status game ke "PLAYING", menginisialisasi kesehatan pemain, status perisai, dan array untuk proyektil dan posisi pemain.
+    \item Loop Game Utama: Ini adalah loop while True yang terus-menerus:
+    \begin{itemize}
+        \item Logika Gameplay:
+        \begin{itemize}
+        \item Pergerakan Proyektil: Memperbarui posisi semua proyektil di layar.
+        \item Deteksi Wajah dan Pemain: Mengidentifikasi wajah pemain, menentukan siapa Player 1 dan Player 2 berdasarkan posisi hidung relatif terhadap garis tengah layar.
+        \item Kontrol Pemain (Kedipan): Menghitung Eye Aspect Ratio (EAR) untuk mendeteksi kedipan mata. Jika kedipan terdeteksi dan cooldown menembak sudah berlalu, proyektil baru akan ditambahkan ke layar.
+        \item Deteksi Gerakan Tangan: Menggunakan detect\textunderscore hand\textunderscore gesture (dari utils.py) untuk mendeteksi gestur tangan (misalnya, jempol ke atas) dan memanggil activate\textunderscore shield jika gestur yang sesuai terdeteksi.
+        \item Deteksi Tabrakan: Memeriksa tabrakan antara proyektil dan pesawat pemain. Jika terjadi tabrakan dan perisai tidak aktif, kesehatan pemain yang terkena akan berkurang.
+        \item Status Kemenangan: Memeriksa apakah kesehatan salah satu pemain telah mencapai nol, yang mengarah ke perubahan status game menjadi "WINNER".
+    \end{itemize}
+    \item Penggambaran Visual:
+    \begin{itemize}
+        \item Menggambar semua proyektil yang aktif.
+        \item Menggambar perisai jika aktif di sekitar pemain.
+        \item Menggambar pesawat pemain di posisi yang terdeteksi.
+        \item Menggambar \textit{health bar} untuk kedua pemain.
+        \item Menggambar garis pembagi tengah di layar.
+        \item Menampilkan instruksi awal permainan dengan efek \textit{fade-out}.
+    \end{itemize}
+    \item Layar Pemenang: Jika current\textunderscore game\textunderscore state adalah GAME\textunderscore STATE\textunderscore WINNER:
+    \begin{itemize}
+        \item Menggambar gambar "WINNER" dan teks "X WINS!".
+        \item Menggambar tombol "REPLAY" dan "CLOSE" dan menyimpan posisi mereka untuk interaksi mouse.
+    \end{itemize}
+    \item Input Pengguna: Memproses penekanan tombol keyboard (misalnya, ESC untuk keluar) dan flag yang diatur oleh handle\textunderscore mouse\textunderscore event untuk me-restart atau keluar dari game.
+    Pembersihan: Melepaskan kamera dan menutup semua jendela OpenCV saat loop berakhir.
+    \end{itemize}
+\item Pembersihan: Melepaskan kamera dan menutup semua jendela OpenCV saat loop berakhir.
+\end{itemize}
+\begin{lstlisting}[language=Python, caption=fungsi main]
 def main():
-    # Main function to run the interactive blink-based shooting game with two players.
-    # Buka kamera
+    global _restart_game_flag, _exit_game_flag, replay_button_rect, close_button_rect
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         raise IOError("Tidak dapat membuka kamera.")
-
-    # Inisialisasi variabel
+    cv2.namedWindow("EVADER")
+    cv2.setMouseCallback("EVADER", handle_mouse_event)
+    current_game_state = GAME_STATE_PLAYING
+    winner_player_id = None
     last_blink_time = [0, 0]
     eye_ready_to_blink = [0, 0]
     projectiles = []
+    global health_player1, health_player2, shield_active_player1, shield_active_player2
     health_player1 = 100
     health_player2 = 100
+    shield_active_player1 = False
+    shield_active_player2 = False
+    player_positions = [None, None]
+    show_instructions_start_time = time.time()
+    instruction_display_duration = 10
+    instruction_text = [
+        "HOW TO PLAY :",
+        "1. Area player dipisah dengan garis tengah.",
+        "2. Player 1 (Kiri) aktif dengan jempol kiri.",
+        "3. Player 2 (Kanan) aktif dengan jempol kanan.",
+        "4. Berkedip untuk menembak.",
+        "5. Gerakkan kepala untuk menghindar."
+    ]
 
     while True:
         ret, frame = cap.read()
@@ -240,205 +319,475 @@ def main():
             break
 
         frame = cv2.flip(frame, 1)
+        frame = cv2.resize(frame, RESIZED_FRAME_DIMENSIONS)
         ih, iw = frame.shape[:2]
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results_face = face_mesh.process(rgb_frame)
         results_hands = hands.process(rgb_frame)
         current_time = time.time()
 
-        # Reset proyektil yang keluar dari layar
-        new_projectiles = []
-        for proj in projectiles:
-            proj['x'] += 10 if proj['player'] == "Player 1" else -10
-            if 0 <= proj['x'] <= iw:
-                new_projectiles.append(proj)
-        projectiles = new_projectiles
+        if current_game_state == GAME_STATE_PLAYING:
+            # Gameplay logic
+            new_projectiles = []
+            for proj in projectiles:
+                proj['x'] += 15 if proj['player'] == "Player 1" else -15
+                if 0 <= proj['x'] + proj['w'] and proj['x'] <= iw:
+                    new_projectiles.append(proj)
+            projectiles = new_projectiles
 
-        if results_face.multi_face_landmarks:
-            for idx, face_landmarks in enumerate(results_face.multi_face_landmarks[:2]):
-                # Deteksi kedipan mata
-                left_ear = eye_aspect_ratio(face_landmarks.landmark, LEFT_EYE_IDX, iw, ih)
-                right_ear = eye_aspect_ratio(face_landmarks.landmark, RIGHT_EYE_IDX, iw, ih)
-                avg_ear = (left_ear + right_ear) / 2.0
+            if len(projectiles) > MAX_PROJECTILES:
+                projectiles.pop(0)
 
-                nose = face_landmarks.landmark[NOSE_IDX]
-                player_x = int(nose.x * iw) - PLAYER_W // 2
-                player_y = int(nose.y * ih) - PLAYER_H // 2
+            if results_face.multi_face_landmarks:
+                detected_players = []
+                for face_landmarks in results_face.multi_face_landmarks[:2]:
+                    nose = face_landmarks.landmark[NOSE_IDX]
+                    if nose.x < 0 or nose.x > 1 or nose.y < 0 or nose.y > 1:
+                        continue
 
-                blinking = avg_ear < BLINK_THRESHOLD
-                eyes_open = avg_ear > OPEN_THRESHOLD
+                    # Determine player ID based on nose position relative to the center line
+                    player_id = 0 if nose.x * iw < SCREEN_CENTER_X else 1
+                    target_player_w = PLAYER_TARGET_W
+                    target_player_h = PLAYER1_TARGET_H if player_id == 0 else PLAYER2_TARGET_H
 
-                if eyes_open:
-                    eye_ready_to_blink[idx] = 1
+                    # Adjust X position for better placement
+                    if player_id == 0:  # Player 1 (left)
+                        player_x = int(nose.x * iw) - int(target_player_w * 0.7)
+                    else:  # Player 2 (right)
+                        player_x = int(nose.x * iw) - int(target_player_w * 0.3)
+                    player_y = int(nose.y * ih) - target_player_h // 2
 
-                if blinking and eye_ready_to_blink[idx] == 1 and current_time - last_blink_time[idx] >= BLINK_COOLDOWN:
-                    # Tembakkan peluru
-                    ammo_w = 30
-                    ammo_h = int(ammo_w * ammo_img.shape[0] / ammo_img.shape[1])
-                    ammo_start_x = player_x + PLAYER_W if idx == 0 else player_x - ammo_w
-                    ammo_start_y = player_y + PLAYER_H // 2 - ammo_h // 2
-                    projectiles.append({
-                        'x': ammo_start_x,
-                        'y': ammo_start_y,
-                        'w': ammo_w,
-                        'h': ammo_h,
-                        'player': f"Player {idx + 1}"
-                    })
-                    last_blink_time[idx] = current_time
-                    eye_ready_to_blink[idx] = 0
+                    # Ensure only one player is detected per side if two faces are detected
+                    if player_id not in [p["id"] for p in detected_players]:
+                        detected_players.append({
+                            "id": player_id,
+                            "x": player_x,
+                            "y": player_y,
+                            "landmarks": face_landmarks
+                        })
 
-                # Gambar player
-                frame = overlay_transparent(frame, player_img, player_x, player_y, (PLAYER_W, PLAYER_H))
+                # Update player positions
+                for player in detected_players:
+                    player_id = player["id"]
+                    player_positions[player_id] = {"x": player["x"], "y": player["y"]}
+                    left_ear = eye_aspect_ratio(player["landmarks"].landmark, LEFT_EYE_IDX, iw, ih)
+                    right_ear = eye_aspect_ratio(player["landmarks"].landmark, RIGHT_EYE_IDX, iw, ih)
+                    avg_ear = (left_ear + right_ear) / 2.0
+                    blinking = avg_ear < BLINK_THRESHOLD
+                    eyes_open = avg_ear > OPEN_THRESHOLD
 
-                # Gambar healthbar
+                    if eyes_open:
+                        eye_ready_to_blink[player_id] = 1
+
+                    if blinking and eye_ready_to_blink[player_id] == 1 and current_time - last_blink_time[player_id] >= BLINK_COOLDOWN:
+                        ammo_rotation_angle = -90 if player_id == 0 else 90
+                        rotated_ammo = rotate_image_alpha(cv2.resize(ammo_img_raw, (AMMO_W, AMMO_H), interpolation=cv2.INTER_AREA), ammo_rotation_angle)
+                        rotated_ammo_h, rotated_ammo_w = rotated_ammo.shape[:2]
+
+                        # Position the projectile at the tip of the spaceship
+                        if player_id == 0:
+                            ammo_start_x = player["x"] + PLAYER_TARGET_W - (rotated_ammo_w // 2)
+                        else:  # Player 2 shooting to the left
+                            ammo_start_x = player["x"] - (rotated_ammo_w // 2)
+                        ammo_start_y = player["y"] + (PLAYER1_TARGET_H if player_id == 0 else PLAYER2_TARGET_H) // 2 - (rotated_ammo_h // 2)
+
+                        projectiles.append({
+                            'x': ammo_start_x,
+                            'y': ammo_start_y,
+                            'w': rotated_ammo_w,
+                            'h': rotated_ammo_h,
+                            'img': rotated_ammo,
+                            'player': f"Player {player_id + 1}"
+                        })
+                        last_blink_time[player_id] = current_time
+                        eye_ready_to_blink[player_id] = 0
+
+            # Detect hand gestures
+            if results_hands.multi_hand_landmarks:
+                for hand_landmarks in results_hands.multi_hand_landmarks:
+                    gesture = detect_hand_gesture(hand_landmarks)
+                    hand_x_normalized = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST].x
+                    if gesture == "thumbs_up":
+                        activate_shield("Player 1" if hand_x_normalized < 0.5 else "Player 2")
+
+            # Draw projectiles and detect collisions
+            for i in range(len(projectiles) - 1, -1, -1):
+                proj = projectiles[i]
+                frame = overlay_transparent(frame, proj['img'], proj['x'], proj['y'], (proj['w'], proj['h']))
+                collision_occurred = False
+
+                for idx, position in enumerate(player_positions):
+                    if position is not None:
+                        player_x, player_y = position["x"], position["y"]
+                        player_w_check = PLAYER_TARGET_W
+                        player_h_check = PLAYER1_TARGET_H if idx == 0 else PLAYER2_TARGET_H
+
+                        # Collision logic
+                        player_left = player_x
+                        player_top = player_y
+                        player_right = player_x + player_w_check
+                        player_bottom = player_y + player_h_check
+
+                        proj_left = proj['x']
+                        proj_top = proj['y']
+                        proj_right = proj['x'] + proj['w']
+                        proj_bottom = proj['y'] + proj['h']
+
+                        if (proj_left < player_right and proj_right > player_left and
+                            proj_top < player_bottom and proj_bottom > player_top):
+                            if proj['player'] != f"Player {idx + 1}":
+                                if (idx == 0 and shield_active_player1) or (idx == 1 and shield_active_player2):
+                                    collision_occurred = True
+                                    break
+                                else:
+                                    if idx == 0:
+                                        health_player1 -= 10
+                                    else:
+                                        health_player2 -= 10
+                                    collision_occurred = True
+                                    if health_player1 <= 0:
+                                        current_game_state = GAME_STATE_WINNER
+                                        winner_player_id = "Player 2"
+                                    elif health_player2 <= 0:
+                                        current_game_state = GAME_STATE_WINNER
+                                        winner_player_id = "Player 1"
+                                    break
+
+                if collision_occurred:
+                    projectiles.pop(i)
+
+            # Draw shields if active
+            for idx, position in enumerate(player_positions):
+                if position is not None:
+                    player_x, player_y = position["x"], position["y"]
+                    player_w_shield = PLAYER_TARGET_W
+                    player_h_shield = PLAYER1_TARGET_H if idx == 0 else PLAYER2_TARGET_H
+
+                    shield_scale_factor = 1.3
+                    scaled_shield_w = int(player_w_shield * shield_scale_factor)
+                    scaled_shield_h = int(player_h_shield * shield_scale_factor)
+
+                    shield_draw_x = player_x - (scaled_shield_w - player_w_shield) // 2
+                    shield_draw_y = player_y - (scaled_shield_h - player_h_shield) // 2
+
+                    if idx == 0 and shield_active_player1:
+                        frame = overlay_transparent(frame, shield_img, shield_draw_x, shield_draw_y, (scaled_shield_w, scaled_shield_h))
+                    elif idx == 1 and shield_active_player2:
+                        frame = overlay_transparent(frame, shield_img, shield_draw_x, shield_draw_y, (scaled_shield_w, scaled_shield_h))
+
+        # Draw players and health bars
+        for idx, position in enumerate(player_positions):
+            if position is not None:
+                player_x, player_y = position["x"], position["y"]
+                player_to_draw_img = player1_rotated if idx == 0 else player2_rotated
+                player_w_draw = PLAYER_TARGET_W
+                player_h_draw = PLAYER1_TARGET_H if idx == 0 else PLAYER2_TARGET_H
+                frame = overlay_transparent(frame, player_to_draw_img, player_x, player_y, (player_w_draw, player_h_draw))
                 health = health_player1 if idx == 0 else health_player2
                 frame = draw_healthbar(frame, f"Player {idx + 1}", health, player_x, player_y - 20)
 
-        # Deteksi gestur tangan
-        if results_hands.multi_hand_landmarks:
-            for hand_landmarks in results_hands.multi_hand_landmarks:
-                gesture = detect_hand_gesture(hand_landmarks)
-                if gesture == "thumbs_up":
-                    # Aktifkan shield untuk pemain yang melakukan gestur
-                    if hand_landmarks.landmark[0].x < 0.5:  # Pemain di kiri frame
-                        activate_shield("Player 1")
-                    else:  # Pemain di kanan frame
-                        activate_shield("Player 2")
+        # Draw dividing line between players
+        cv2.line(frame, (SCREEN_CENTER_X, 0), (SCREEN_CENTER_X, ih), (255, 255, 255), 2)
 
-        # Gambar proyektil dan deteksi tabrakan
-        for proj in projectiles:
-            frame = overlay_transparent(frame, ammo_img, proj['x'], proj['y'], (proj['w'], proj['h']))
+        # Draw instructions with fade-out effect
+        elapsed_time = current_time - show_instructions_start_time
+        if current_game_state == GAME_STATE_PLAYING and elapsed_time < instruction_display_duration:
+            alpha = 1.0
+            if elapsed_time > instruction_display_duration - 2:
+                alpha = 1.0 - (elapsed_time - (instruction_display_duration - 2)) / 2.0
+                alpha = max(0, min(1, alpha))
 
-            # Deteksi tabrakan dengan player
-            for idx, face_landmarks in enumerate(results_face.multi_face_landmarks[:2]):
-                nose = face_landmarks.landmark[NOSE_IDX]
-                player_x = int(nose.x * iw) - PLAYER_W // 2
-                player_y = int(nose.y * ih) - PLAYER_H // 2
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            font_scale_base = ih / 480
+            font_scale = font_scale_base * 0.5
+            thickness = 1
+            line_height = int(font_scale * 40)
+            max_text_w = 0
+            total_text_h = 0
 
-                if (player_x < proj['x'] < player_x + PLAYER_W and
-                    player_y < proj['y'] < player_y + PLAYER_H and
-                    proj['player'] != f"Player {idx + 1}" and
-                    not (shield_active_player1 if idx == 0 else shield_active_player2)):
-                    if idx == 0:
-                        health_player1 -= 10
-                    else:
-                        health_player2 -= 10
-                    projectiles.remove(proj)
+            for line in instruction_text:
+                (text_w, text_h), baseline = cv2.getTextSize(line, font, font_scale, thickness)
+                max_text_w = max(max_text_w, text_w)
+                total_text_h += (text_h + baseline + 10)
 
-        # Gambar shield jika aktif
-        for idx, face_landmarks in enumerate(results_face.multi_face_landmarks[:2]):
-            nose = face_landmarks.landmark[NOSE_IDX]
-            player_x = int(nose.x * iw) - PLAYER_W // 2
-            player_y = int(nose.y * ih) - PLAYER_H // 2
+            start_x = (iw - max_text_w) // 2
+            start_y = (ih - total_text_h) // 2
+            y_offset = start_y
 
-            if idx == 0 and shield_active_player1:
-                frame = overlay_transparent(frame, shield_img, player_x, player_y, (PLAYER_W, PLAYER_H))
-            elif idx == 1 and shield_active_player2:
-                frame = overlay_transparent(frame, shield_img, player_x, player_y, (PLAYER_W, PLAYER_H))
+            for line in instruction_text:
+                (text_w, text_h), baseline = cv2.getTextSize(line, font, font_scale, thickness)
+                x_pos = start_x + (max_text_w - text_w) // 2
+                text_color = (255, 255, 255)
+                text_color_alpha = (int(text_color[0] * alpha), int(text_color[1] * alpha), int(text_color[2] * alpha))
+                cv2.putText(frame, line, (x_pos, y_offset), font, font_scale, text_color_alpha, thickness, cv2.LINE_AA)
+                y_offset += (text_h + baseline + 10)
 
-        # Tampilkan frame
-        cv2.imshow("Two Player Blink Shot", frame)
-        if cv2.waitKey(5) & 0xFF == 27:  # Tekan ESC untuk keluar
+        # Winner state display
+        if current_game_state == GAME_STATE_WINNER:
+            projectiles.clear()
+            winner_scale_factor = 0.5
+            winner_display_w = int(winner_img_raw.shape[1] * winner_scale_factor)
+            winner_display_h = int(winner_img_raw.shape[0] * winner_scale_factor)
+            winner_scaled_img = cv2.resize(winner_img_raw, (winner_display_w, winner_display_h), interpolation=cv2.INTER_AREA)
+
+            if winner_player_id == "Player 1":
+                winner_x = (SCREEN_CENTER_X // 2) - (winner_display_w // 2)
+            else:
+                winner_x = SCREEN_CENTER_X + (SCREEN_CENTER_X // 2) - (winner_display_w // 2)
+
+            winner_y = int(ih * 0.1)
+            frame = overlay_transparent(frame, winner_scaled_img, winner_x, winner_y, (winner_display_w, winner_display_h))
+
+            winner_text = f"{winner_player_id} WINS!"
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            text_scale = ih / 480 * 1.0
+            text_thickness = 2
+            (text_w, text_h), baseline = cv2.getTextSize(winner_text, font, text_scale, text_thickness)
+            text_x = winner_x + (winner_display_w // 2) - (text_w // 2)
+            text_y = winner_y + winner_display_h + 30
+            cv2.putText(frame, winner_text, (text_x, text_y), font, text_scale, (0, 255, 255), text_thickness, cv2.LINE_AA)
+
+            # Draw REPLAY and CLOSE buttons
+            button_scale_factor = 0.3
+            replay_btn_resized = cv2.resize(replay_btn_img, (int(replay_btn_img.shape[1] * button_scale_factor), int(replay_btn_img.shape[0] * button_scale_factor)), interpolation=cv2.INTER_AREA)
+            close_btn_resized = cv2.resize(close_btn_img, (int(close_btn_img.shape[1] * button_scale_factor), int(close_btn_img.shape[0] * button_scale_factor)), interpolation=cv2.INTER_AREA)
+            replay_btn_w, replay_btn_h = replay_btn_resized.shape[1], replay_btn_resized.shape[0]
+            close_btn_w, close_btn_h = close_btn_resized.shape[1], close_btn_resized.shape[0]
+
+            buttons_center_y = int(ih * 0.5)
+            total_buttons_width = replay_btn_w + close_btn_w + 40
+            start_x_buttons = (iw // 2) - (total_buttons_width // 2)
+            replay_x = start_x_buttons
+            replay_y = buttons_center_y - (replay_btn_h // 2)
+            close_x = start_x_buttons + replay_btn_w + 40
+            close_y = buttons_center_y - (close_btn_h // 2)
+
+            frame = overlay_transparent(frame, replay_btn_resized, replay_x, replay_y)
+            frame = overlay_transparent(frame, close_btn_resized, close_x, close_y)
+
+            replay_button_rect = (replay_x, replay_y, replay_btn_w, replay_btn_h)
+            close_button_rect = (close_x, close_y, close_btn_w, close_btn_h)
+
+        cv2.imshow("EVADER", frame)
+        key = cv2.waitKey(1) & 0xFF
+
+        # Global exit (ESC)
+        if key == 27:
+            _exit_game_flag = True
+
+        # Handle button clicks via mouse callback flags
+        if _restart_game_flag:
+            current_game_state = GAME_STATE_PLAYING
+            winner_player_id = None
+            health_player1 = 100
+            health_player2 = 100
+            shield_active_player1 = False
+            shield_active_player2 = False
+            projectiles.clear()
+            player_positions = [None, None]
+            last_blink_time = [0, 0]
+            eye_ready_to_blink = [0, 0]
+            show_instructions_start_time = time.time()
+            _restart_game_flag = False
+        if _exit_game_flag:
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+\end{lstlisting}
+
+\subsection{overlay.py dan Fungsi overlay\textunderscore transparent}
+\textbf{overlay.py} berisi kode untuk menggabungkan gambar transparan (seperti pesawat ruang angkasa, peluru, perisai, atau tombol UI) ke dalam frame video secara mulus.
+
+\begin{lstlisting}[language=Python, caption=overlay\textunderscore transparent]
+def overlay_transparent(bg, overlay, x, y, overlay_size=None):
+    if overlay_size:
+        overlay = cv2.resize(overlay, overlay_size, interpolation=cv2.INTER_AREA)
+    h, w = overlay.shape[:2]
+
+    # Ensure overlay fits within the background dimensions
+    if x + w > bg.shape[1] or y + h > bg.shape[0] or x < 0 or y < 0:
+        return bg
+
+    # Extract overlay components
+    overlay_img = overlay[:, :, :3]
+    mask = overlay[:, :, 3] / 255.0
+    mask = np.stack([mask] * 3, axis=-1)
+
+    # Apply blending
+    roi = bg[y:y+h, x:x+w]
+    blended = (1.0 - mask) * roi + mask * overlay_img
+    bg[y:y+h, x:x+w] = blended.astype(np.uint8)
+
+    return bg
+\end{lstlisting}
+
+\subsection{utils.py}
+ File \textbf{utils.py}, berfungsi sebagai perpustakaan utilitas atau kumpulan fungsi-fungsi pembantu yang digunakan di berbagai bagian program utama (\textbf{main.py}). Daripada menulis ulang kode untuk tugas-tugas umum seperti menghitung rasio aspek mata, mendeteksi gestur tangan, atau menggambar health bar, fungsi-fungsi ini dienkapsulasi dalam \textbf{utils.py}
+
+\subsubsection{Fungsi eye\textunderscore aspect\textunderscore ratio}
+Fungsi ini menghitung Rasio Aspek Mata (Eye Aspect Ratio - EAR). EAR adalah metrik yang digunakan untuk menentukan seberapa terbuka mata seseorang. Ini sering digunakan dalam sistem deteksi kantuk atau, seperti dalam kasus ini, untuk mendeteksi kedipan mata.
+\begin{lstlisting}[language=Python, caption=eye\textunderscore aspect\textunderscore ratio]
+def eye_aspect_ratio(landmarks, eye_indices, img_w, img_h):
+    p = np.array([(landmarks[i].x * img_w, landmarks[i].y * img_h) for i in eye_indices])
+    A = np.linalg.norm(p[1] - p[5])
+    B = np.linalg.norm(p[2] - p[4])
+    C = np.linalg.norm(p[0] - p[3])
+    ear = (A + B) / (2.0 * C)
+    return ear
+\end{lstlisting}
+
+\subsubsection{Fungsi detect\textunderscore hand\textunderscore gesture}
+Fungsi ini dirancang untuk mendeteksi gestur tangan spesifik, saat ini hanya gestur "jempol ke atas" (thumbs\textunderscore up).
+
+\begin{lstlisting}[language=Python, caption=detect\textunderscore hand\textunderscore gesture]
+def detect_hand_gesture(hand_landmarks, thumb_threshold=0.1):
+    thumb_tip = hand_landmarks.landmark[4]
+    index_tip = hand_landmarks.landmark[8]
+    middle_tip = hand_landmarks.landmark[12]
+
+    if (thumb_tip.y + thumb_threshold < index_tip.y) and (thumb_tip.y + thumb_threshold < middle_tip.y):
+        return "thumbs_up"
+
+    return None
+\end{lstlisting}
+\subsubsection{Fungsi draw\textunderscore healthbar}
+Fungsi ini bertanggung jawab untuk menggambar \textit{health bar} di atas frame video untuk pemain.
+\begin{lstlisting}[language=Python, caption=draw\textunderscore healthbar]
+def draw_healthbar(frame, player_id, health, x, y, w=100, h=10, bg_color=(0, 0, 0), fg_color=(0, 255, 0)):
+    cv2.rectangle(frame, (x, y), (x + w, y + h), bg_color, 2)
+
+    fill_width = int((health / 100) * w)
+    cv2.rectangle(frame, (x, y), (x + fill_width, y + h), fg_color, -1)
+
+    cv2.putText(frame, player_id, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+    return frame
+\end{lstlisting}
+\subsection{menu\textunderscore manager.py dan Fungsi run\textunderscore menu}
+\textbf{menu\textunderscore manager} mengelola dan menampilkan menu awal permainan. Ini berfungsi sebagai gerbang utama sebelum game EVADER dimulai. Tujuannya adalah untuk menyambut pemain, menampilkan judul game, dan memberikan opsi untuk memulai permainan.
+\begin{lstlisting}[language=Python, caption=menu\textunderscore manager]
+def run_menu():
+    # Load assets
+    title_img = cv2.imread('assets/BUTTON TITLE/TITLE.png', cv2.IMREAD_UNCHANGED)
+    start_btn_img = cv2.imread('assets/BUTTON TITLE/START.png', cv2.IMREAD_UNCHANGED)
+
+    if title_img is None or start_btn_img is None:
+        raise FileNotFoundError("Gambar tidak ditemukan. Pastikan semua aset ada di direktori yang benar.")
+    if title_img.shape[2] < 4 or start_btn_img.shape[2] < 4:
+        raise ValueError("Gambar tidak memiliki alpha channel.")
+
+    # Constants
+    RESIZED_FRAME_DIMENSIONS = (640, 480)
+    SCREEN_CENTER_X = RESIZED_FRAME_DIMENSIONS[0] // 2
+
+    # Initialize variables
+    start_button_rect = None
+    _start_game_flag = False
+
+    def handle_mouse_event(event, x, y, flags, param):
+        nonlocal _start_game_flag
+        if event == cv2.EVENT_LBUTTONDOWN:
+            # Check if start button was clicked
+            if start_button_rect and \
+               x >= start_button_rect[0] and x <= start_button_rect[0] + start_button_rect[2] and \
+               y >= start_button_rect[1] and y <= start_button_rect[1] + start_button_rect[3]:
+                _start_game_flag = True
+
+    # Main menu loop
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        raise IOError("Tidak dapat membuka kamera.")
+    cv2.namedWindow("EVADER")
+    cv2.setMouseCallback("EVADER", handle_mouse_event)
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        frame = cv2.flip(frame, 1)
+        frame = cv2.resize(frame, RESIZED_FRAME_DIMENSIONS)
+        ih, iw = frame.shape[:2]
+
+        # Draw title screen
+        title_scaled = cv2.resize(title_img, (int(iw * 0.8), int(ih * 0.8)), interpolation=cv2.INTER_AREA)
+        title_x = (iw - title_scaled.shape[1]) // 2
+        title_y = int(ih * 0.2)
+        frame = overlay_transparent(frame, title_scaled, title_x, title_y, (title_scaled.shape[1], title_scaled.shape[0]))
+
+        # Draw start button
+        start_btn_resized = cv2.resize(start_btn_img, (int(start_btn_img.shape[1] * 0.3), int(start_btn_img.shape[0] * 0.3)), interpolation=cv2.INTER_AREA)
+        start_btn_w, start_btn_h = start_btn_resized.shape[1], start_btn_resized.shape[0]
+        start_x = (iw // 2) - (start_btn_w // 2)
+        start_y = int(ih * 0.7)
+        frame = overlay_transparent(frame, start_btn_resized, start_x, start_y, (start_btn_w, start_btn_h))
+        start_button_rect = (start_x, start_y, start_btn_w, start_btn_h)
+
+        cv2.imshow("EVADER", frame)
+        key = cv2.waitKey(1) & 0xFF
+
+        # Exit on ESC
+        if key == 27:
+            break
+
+        # Check if START button was clicked
+        if _start_game_flag:
             break
 
     cap.release()
     cv2.destroyAllWindows()
 
-if __name__ == "__main__":
-    main()
+    return _start_game_flag
 \end{lstlisting}
+\section{Setup Program}
+\subsection{Versi Python}
+Pastikan versi python anda ada di rentang 3.10 - 3.12
+\begin{center}
+	\includegraphics[scale = 1]{Source/python_version.png}
+\end{center}
+\subsection{Instalasi Dependencies}
+Install dependencies dengan \textbf{pip install -r requirements.txt}
+\begin{center}
+	\includegraphics[scale = 1]{Source/image2.png}
+\end{center}
+\subsection{Run main.py}
+Jalankan file \textbf{main.py} untuk memulai game
+\begin{center}
+	\includegraphics[scale = 1]{Source/image.png}
+\end{center}
 
-\subsection{overlay.py}
-\textbf{overlay.py} berisi kode untuk ...
-\begin{lstlisting}[language=Python, caption=Main.py]
-import cv2
-import numpy as np
+\subsection{Mulai permainan}
+Akan muncul tampilan menu awal dari game. Tekan tombol start untuk memulai game
+\begin{center}
+	\includegraphics[scale = 0.5]{Source/Evader Start.png}
+\end{center}
 
-def overlay_transparent(bg, overlay, x, y, overlay_size=None):
-    bg = bg.copy()
-    if overlay_size:
-        overlay = cv2.resize(overlay, overlay_size, interpolation=cv2.INTER_AREA)
-    h, w = overlay.shape[:2]
-    if x + w > bg.shape[1] or y + h > bg.shape[0] or x < 0 or y < 0:
-        return bg
-    overlay_img = overlay[:, :, :3]
-    mask = overlay[:, :, 3] / 255.0
-    mask = np.stack([mask] * 3, axis=-1)
-    roi = bg[y:y+h, x:x+w]
-    blended = (1.0 - mask) * roi + mask * overlay_img
-    bg[y:y+h, x:x+w] = blended.astype(np.uint8)
-    return bg
-\end{lstlisting}
+\subsection{Instruksi permainan}
+Ditampilkan instruksi permainan untuk membantu player mengerti cara bermain
+\begin{center}
+	\includegraphics[scale = 0.5]{Source/Screenshot 2025-05-31 224020.png}
+\end{center}
 
-\subsection{utils.py}
-\textbf{utils.py}, seperti namanya berisi utilitas yang dibutuhkan program seperti aspek rasio mata, mendeteksi gesture tangan dan menggambar healthbar untuk player
-\begin{lstlisting}
-[language=Python, caption=Main.py]
-import numpy as np
-import cv2
+\subsection{Permainan dimulai}
+Setiap player dapat menyerang dengan berkedip kemudian pesawat akan menembakkan peluru
+\begin{center}
+	\includegraphics[scale = 0.5]{Source/Screenshot 2025-05-31 224030.png}
+\end{center}
 
-def eye_aspect_ratio(landmarks, eye_indices, img_w, img_h):
-    p = [landmarks[i] for i in eye_indices]
-    p = [(int(pt.x * img_w), int(pt.y * img_h)) for pt in p]
-    A = np.linalg.norm(np.array(p[1]) - np.array(p[5]))
-    B = np.linalg.norm(np.array(p[2]) - np.array(p[4]))
-    C = np.linalg.norm(np.array(p[0]) - np.array(p[3]))
-    ear = (A + B) / (2.0 * C)
-    return ear
+\subsection{Mengaktikan perisai}
+Ketika pemain membuat gestur jempol, akan mengaktifkan perisai pada pesawatnya
+\begin{center}
+	\includegraphics[scale = 0.5]{Source/Screenshot 2025-05-31 224107.png}
+\end{center}
 
-def detect_hand_gesture(hand_landmarks):
-    thumb_tip = hand_landmarks.landmark[4]
-    index_tip = hand_landmarks.landmark[8]
-    middle_tip = hand_landmarks.landmark[12]
-
-    # Contoh: Deteksi thumbs up
-    if thumb_tip.y < index_tip.y and thumb_tip.y < middle_tip.y:
-        return "thumbs_up"
-
-    return None
-
-def draw_healthbar(frame, player_id, health, x, y, w=100, h=10):
-    # Draw background of the healthbar
-    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 0), 2)
-    # Draw filled part of the healthbar
-    fill_width = int((health / 100) * w)
-    cv2.rectangle(frame, (x, y), (x + fill_width, y + h), (0, 255, 0), -1)
-    # Add player label
-    cv2.putText(frame, player_id, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-    return frame
-\end{lstlisting}
-
-
-
-
-
-\section{Memuat Tabel}
-Bagian ini adalah bagian yang menurut saya cukup sulit. Namun anda dapat menggunakan bantuan dari table designer yang ada di internet, misalnya \href{https://www.tablesgenerator.com}{TablesGenerator} atau \href{https://www.latex-tables.com}{Latex-Tables}. Ada juga plugin untuk microsoft excel bernama \href{https://ctan.org/tex-archive/support/excel2latex?lang=en}{CTAN}, namun saya jarang mempergunakannya. Contoh tabel dapat dilihat pada Tabel \ref{tab-contoh} berikut.
-
-\begin{table}[h]
-\caption{Contoh Tabel}
-\label{tab-contoh}
-\centering
-\resizebox{12cm}{!}{%
-\begin{tabular}{ccccccccc}
-\hline
-\multirow{2}{*}{\textbf{Exp}} & \multirow{2}{*}{\textbf{Mask}} & \multicolumn{3}{c}{\textbf{GT}}            & \multicolumn{3}{c}{\textbf{Proposed}}      & \multirow{2}{*}{\textbf{RMSE}} \\ \cline{3-8}
-                              &                                & \textbf{Avg} & \textbf{Max} & \textbf{Min} & \textbf{Avg} & \textbf{Max} & \textbf{Min} &                                \\ \hline
-\multirow{2}{*}{1}            & Yes                            & 89.60        & 114.84        & 70.31        & 89.14        & 118.45        & 68.24        & 3.66                           \\
-                              & No                             & 90.55        & 112.50        & 75.00        & 89.03        & 109.75        & 71.35        & 3.60                            \\ \hline
-\multirow{2}{*}{2}            & Yes                            & 109.84        & 125.98       & 98.44       & 108.62       & 121.30       & 98.26      & 4.04                           \\ 
-                              & No                             & 106.62       & 123.44        & 96.09       & 106.48       & 122.19       & 93.37        & 3.95                           \\ \hline
-3                             & Yes                            & 74.42        & 94.92       & 62.99        & 73.49       & 102.32        & 60.43       & 3.27                         \\ \hline
-Mean                          &                                & 90.61         & 114.34        & 80.57        & 89.70       & 114.80       & 78.33        & 3.63                           \\ \hline
-\end{tabular}
-}
-\end{table}
-
-\section{Referensi dan Daftar Pustaka}
-Ini bagian yang sedikit \textit{tricky}. Anda harus memasukkan daftar pustaka anda ke sebuah file berekstensi .bib di bagian kiri dari overleaf ini. Konten dot bib ini dapat anda export dengan mudah, entah itu dari google scholar, mendeley, ataupun manajemen sitasi lainnya.\\\\
-Cara penggunaanya pun cukup mudah. Misalnya saat ini saya ingin mensitasi salah satu dokumen yang ada, misalnya wikipedia, saya cukup menuliskan $\backslash${\tt{cite}} yang berisikan cite-key dari entri yang ada di file.bib \cite{Wikipedia_contributors2021-bb}. Contoh lain menuliskan sitasi adalah sebagai berikut \cite{Name2018-hd}.
+\subsection{Kondisi Menang dan Kalah}
+Saat \textit{health bar} pemain habis, maka akan dinyatakan kalah, dan pemain yang bertahan menjadi pemenangnya
+\begin{center}
+	\includegraphics[scale = 0.5]{Source/Screenshot 2025-05-31 224050.png}
+\end{center}
 
 \newpage
+\nocite{*}
 \bibliographystyle{IEEEtran}
 \bibliography{Referensi}
 \end{document}

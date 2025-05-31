@@ -20,13 +20,10 @@ def detect_hand_gesture(hand_landmarks, thumb_threshold=0.1):
     return None
 
 def draw_healthbar(frame, player_id, health, x, y, w=100, h=10, bg_color=(0, 0, 0), fg_color=(0, 255, 0)):
-    # Draw background of the healthbar
     cv2.rectangle(frame, (x, y), (x + w, y + h), bg_color, 2)
 
-    # Draw filled part of the healthbar
     fill_width = int((health / 100) * w)
     cv2.rectangle(frame, (x, y), (x + fill_width, y + h), fg_color, -1)
 
-    # Add player label
     cv2.putText(frame, player_id, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
     return frame
