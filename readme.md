@@ -13,11 +13,5 @@ Ashoka Tatang Solihin (122140015) ID : #170353573
 | ------- | ------ | ------ |
 | Minggu ke-1 | Rancangan kode awal untuk file main.py,  | Memberikan fungsi membuat facial landmark, meletakkan asset di hidung player, Membuat fungsi attack saat player berkedip | 
 | Minggu ke-2 | Penyesuaian kode lebih lanjut  |  Menambahkan bounding box dan memisah kode menjadi beberapa bagian main, utils dan overlay  | 
-| Minggu ke-3 | Content Cell  |  | 
-| Minggu ke-4 | Content Cell  |  | 
-
-
-
-Cara Menjalankan Program
-
-1. PIP INSTALL -r 
+| Minggu ke-3 | Integrasi Fungsi Multiplayer | Menambahkan fungsi agar program bisa menerima 2 player untuk bermain secara bersamaan | 
+| Minggu ke-4 | Finalisasi Konten dan UI | Menambahkan aset - aset tampilan UI seperti Menu Screen dan Screen gameplay utama serta optimisasi fungsi - fungsi yang ada di program |
